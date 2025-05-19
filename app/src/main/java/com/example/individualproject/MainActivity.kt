@@ -49,13 +49,15 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnLogout.setOnClickListener {
-            val sharedPref = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
-            sharedPref.edit().remove("user_email").apply()
+            val sharedPref = getSharedPreferences("user_session", MODE_PRIVATE)
+            sharedPref.edit().clear().apply()  // Tüm oturum verisini temizle
 
             val intent = Intent(this, LoginActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
             finish()
         }
+
 
         btnMenu1.setOnClickListener {
             val intent = Intent(this, AddResearchActivity::class.java)

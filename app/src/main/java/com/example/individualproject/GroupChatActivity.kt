@@ -1,6 +1,7 @@
 package com.example.individualproject
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -19,10 +20,10 @@ class GroupChatActivity : AppCompatActivity() {
     private lateinit var editMessage: EditText
     private lateinit var btnSend: Button
     private lateinit var txtGroupTitle: TextView
-
-    private var researchId: Int = -1
-    private var groupTitle: String? = null
     private val senderEmail = "alice@example.com" // oturum açan kullanıcıdan alınmalı
+
+    private var groupChatId: Int = -1
+    private var groupTitle: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,10 +38,15 @@ class GroupChatActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
 
-        // Intent verileri
-        researchId = intent.getIntExtra("research_id", -1)
+        groupChatId = intent.getIntExtra("group_chat_id", -1)
         groupTitle = intent.getStringExtra("research_title")
         txtGroupTitle.text = "Grup: $groupTitle"
+
+        if (groupChatId == -1) {
+            Toast.makeText(this, "Grup sohbeti bulunamadı", Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
 
         getGroupMessages()
 
@@ -53,11 +59,8 @@ class GroupChatActivity : AppCompatActivity() {
     }
 
     private fun getGroupMessages() {
-        RetrofitClient.api.getGroupMessages(researchId).enqueue(object : Callback<MessageListResponse> {
-            override fun onResponse(
-                call: Call<MessageListResponse>,
-                response: Response<MessageListResponse>
-            ) {
+        RetrofitClient.api.getGroupMessages(groupChatId).enqueue(object : Callback<MessageListResponse> {
+            override fun onResponse(call: Call<MessageListResponse>, response: Response<MessageListResponse>) {
                 if (response.isSuccessful) {
                     val messageList = response.body()?.messages ?: emptyList()
                     adapter.setMessages(messageList)
@@ -68,11 +71,10 @@ class GroupChatActivity : AppCompatActivity() {
                 Toast.makeText(this@GroupChatActivity, "Hata: ${t.message}", Toast.LENGTH_SHORT).show()
             }
         })
-
     }
 
     private fun sendGroupMessage(content: String) {
-        val request = MessageRequest(researchId, senderEmail, null, content)
+        val request = MessageRequest(groupChatId, senderEmail, null, content)
         RetrofitClient.api.sendMessage(request).enqueue(object : Callback<MessageResponse> {
             override fun onResponse(call: Call<MessageResponse>, response: Response<MessageResponse>) {
                 if (response.isSuccessful && response.body()?.success == true) {
@@ -88,5 +90,4 @@ class GroupChatActivity : AppCompatActivity() {
             }
         })
     }
-
 }

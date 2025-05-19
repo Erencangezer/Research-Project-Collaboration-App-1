@@ -10,6 +10,17 @@ import retrofit2.http.Query
 import retrofit2.http.*
 
 
+data class AddNoteRequest(
+    val research_id: Int,
+    val content: String
+)
+
+data class AddResearchRequest(
+    val title: String,
+    val description: String,
+    val owner_email: String,
+    val invited_emails: List<String>
+)
 
 
 data class MessageRequest(
@@ -35,7 +46,8 @@ data class MessageListItem(
     val title: String,
     val isGroup: Boolean,
     val researchId: Int?, // Grup sohbeti için
-    val receiverEmail: String? // Kişisel sohbet için
+    val receiverEmail: String?, // Kişisel sohbet için
+    val groupChatId: Int? // Grup sohbeti için gerekli!
 )
 
 data class MessageListResponse(
@@ -53,6 +65,23 @@ data class SimpleResponse(
     val success: Boolean,
     val message: String
 )
+
+data class ResearchIdRequest(
+    val research_id: Int
+)
+
+data class ParticipantResponse(
+    val status: String,
+    val participants: List<String>
+)
+
+data class GroupChat(
+    val group_chat_id: Int,
+    val research_id: Int,
+    val research_title: String
+)
+
+
 
 
 interface ApiService {
@@ -86,8 +115,10 @@ interface ApiService {
     @POST("sendMessage")
     fun sendMessage(@Body message: MessageRequest): Call<MessageResponse>
 
-    @GET("getGroupMessages")
-    fun getGroupMessages(@Query("research_id") researchId: Int): Call<MessageListResponse>
+    @GET("getGroupChatMessages/{group_chat_id}")
+    fun getGroupMessages(@Path("group_chat_id") groupChatId: Int): Call<MessageListResponse>
+
+
 
 
 
@@ -97,6 +128,13 @@ interface ApiService {
         @Query("sender_email") senderEmail: String,
         @Query("receiver_email") receiverEmail: String
     ): Call<List<MessageItem>>
+
+
+    @POST("get_participants")
+    fun getParticipants(@Body request: ResearchIdRequest): Call<ParticipantResponse>
+
+    @GET("/group_chats")
+    fun getGroupChats(): Call<List<GroupChat>>
 
 
 

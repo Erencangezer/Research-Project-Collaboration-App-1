@@ -19,6 +19,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
+    <EditText
+        android:id="@+id/etParticipantEmails"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Katılımcı e-postaları (virgülle ayırın)" />
+
     <Button
         android:id="@+id/btnSaveResearch"
         android:layout_width="match_parent"
